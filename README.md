@@ -6,3 +6,5 @@ This is a simple version of Mathdoku written in Java. It will generate puzzles f
 To play, click on a square, which allows you to either indicate the value of a square, or a list of potential candidates. Once the puzzle is validly solved, a congratulatory message appears. 
 
 At the present time, the size of the puzzle is determined at the start of the program, and cannot be changed without restarting. 
+
+On most systems (Linux/MacOS) giving executable permissions to buildMathjavadoku and executing it will create a JAR file. On Windows, buildMathjavadoku can be modified to a .BAT file for the same purpose.
