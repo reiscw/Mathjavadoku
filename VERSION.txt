@@ -1,1 +1,2 @@
 Version 1.0 - Initial working version
+Version 1.1 - Fixed issue with tile placement being column-major instead of row-major
