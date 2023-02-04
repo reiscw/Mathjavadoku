@@ -8,13 +8,16 @@ public class MathjavadokuPanel extends JPanel {
 
 	private Mathjavadoku mathjavadoku;
 	private JButton[][] buttons;
+	private JButton autoSimplifyButton;
 	private JButton newGameButton;
     private JButton quitButton;
-    private JTextField status;
-//  private JTextField errorDetected;
-	
+    private JTextField status;	
 	private int size;
 	private Color currentColor;
+
+	private static final Color LIGHT_BLUE = new Color(153, 204, 255);
+	private static final Color LIGHT_GREEN = new Color(153, 255, 153);
+	private static final Color LIGHTER_GRAY = new Color(224, 224, 224);
 	
 	public MathjavadokuPanel(int size) {
 		this.size = size;
@@ -72,12 +75,23 @@ public class MathjavadokuPanel extends JPanel {
 			}
 		}
 		
+		autoSimplifyButton = new JButton("Simplify");
 		newGameButton = new JButton("New Game");
 		quitButton = new JButton("Quit");
-		newGameButton.setBounds((size+1)*100, 50, 150, 20);
-		quitButton.setBounds((size+1)*100, 90, 150, 20);
+		autoSimplifyButton.setBounds((size+1)*100, 50, 150, 20);
+		newGameButton.setBounds((size+1)*100, 90, 150, 20);
+		quitButton.setBounds((size+1)*100, 130, 150, 20);
+		add(autoSimplifyButton);
 		add(newGameButton);
 		add(quitButton);
+		
+		autoSimplifyButton.addActionListener(e -> {
+			try {
+				autoUpdate();
+			} catch (Exception exc) {
+				exc.printStackTrace();
+			}			
+		});
 		
 		newGameButton.addActionListener(e -> {
 			try {
@@ -99,12 +113,8 @@ public class MathjavadokuPanel extends JPanel {
 	public void fieldSetup() {
 		status = new JTextField("Puzzle not yet solved.");
 		status.setEditable(false);
-		status.setBounds((size+1)*100, 130, 150, 20);
+		status.setBounds((size+1)*100, 170, 150, 20);
 		add(status);
-/*		errorDetected = new JTextField("No errors detected.");
-		errorDetected.setEditable(false);
-		errorDetected.setBounds((size+1)*100, 170, 150, 20);
-		add(errorDetected);*/
 	}
 	
 	public void click(int row, int col) {
@@ -126,23 +136,6 @@ public class MathjavadokuPanel extends JPanel {
 	}
 	
 	public boolean check() {
-/*		// check if any elements are incorrect
-		boolean noIncorrects = true;
-		for (int i = 0; i < size; i++) {
-			for (int j = 0; j < size; j++) {
-				String cellText = buttons[i][j].getText();
-				String solution = "" + mathjavadoku.getSolution()[i][j];
-				if (cellText.length() == 1 && !cellText.equals(solution)) {
-					noIncorrects = false;
-				}
-			}
-		}
-		if (noIncorrects) {
-			errorDetected.setText("No errors detected.");
-		} else {
-			errorDetected.setText("Possible error detected!");
-		}*/
-		
 		// check for all positions having length 1
 		for (int i = 0; i < size; i++) {
 			for (int j = 0; j < size; j++) {
@@ -168,6 +161,70 @@ public class MathjavadokuPanel extends JPanel {
 		}
 		status.setText("Congratulations!");
 		return true;
+	}
+	
+	public void autoUpdate() {
+		boolean finished = false;
+		while (!finished) {
+			// check columns
+			boolean columnChange = false;
+			for (int col = 0; col < size; col++) {
+				ArrayList<String> singles = new ArrayList<String>();
+				for (int row = 0; row < size; row++) {
+					if (buttons[row][col].getText().length() == 1) {
+						singles.add(buttons[row][col].getText());
+					}
+				}
+				for (int row = 0; row < size; row++) {
+					for (String single : singles) {
+						String text = buttons[row][col].getText();
+						if (text.equals(single)) continue;
+						int loc = text.indexOf(single);
+						if (loc != -1) {
+							text = text.replace(single, "");
+							buttons[row][col].setText(text);
+							columnChange = true;
+						}
+					}
+				}
+			}
+
+			// check rows
+			boolean rowChange = false;
+			for (int row = 0; row < size; row++) {
+				ArrayList<String> singles = new ArrayList<String>();
+				for (int col = 0; col < size; col++) {
+					if (buttons[row][col].getText().length() == 1) {
+						singles.add(buttons[row][col].getText());
+					}
+				}
+				for (int col = 0; col < size; col++) {
+					for (String single : singles) {
+						String text = buttons[row][col].getText();
+						if (text.equals(single)) continue;
+						int loc = text.indexOf(single);
+						if (loc != -1) {
+							text = text.replace(single, "");
+							buttons[row][col].setText(text);
+							rowChange = true;
+						}
+					}
+				}
+			}
+			
+			if (!columnChange && !rowChange) {
+				finished = true;
+			}
+		}
+		if (check()) {
+			String successMessage = "Would you like to play again? (Choose OK for yes, Cancel for no)";
+			int result = JOptionPane.showConfirmDialog(null,  successMessage, "Congratulations!", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+			if (result == JOptionPane.OK_OPTION) {
+				reset();
+			} else {
+				System.exit(0);
+			}
+		}
 	}
 	
 	public void reset() {
@@ -196,6 +253,12 @@ public class MathjavadokuPanel extends JPanel {
 		} else if (currentColor.equals(Color.PINK)) {
 			return Color.RED;
 		} else if (currentColor.equals(Color.RED)) {
+			return LIGHTER_GRAY;
+		} else if (currentColor.equals(LIGHTER_GRAY)) {
+			return LIGHT_BLUE;
+		} else if (currentColor.equals(LIGHT_BLUE)) {
+			return LIGHT_GREEN;
+		} else if (currentColor.equals(LIGHT_GREEN)) {
 			return Color.WHITE;
 		} else if (currentColor.equals(Color.WHITE)) {
 			return Color.YELLOW;
@@ -205,7 +268,7 @@ public class MathjavadokuPanel extends JPanel {
 	}
 	
 	public static void main(String[] args) {
-		JFrame frame = new JFrame("Mathjavadoku 1.1 by Christopher Reis");
+		JFrame frame = new JFrame("Mathjavadoku 1.2 by Christopher Reis");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         JTextField sizeEntry = new JTextField();
 		Object[] message = {"Enter your desired puzzle size: ", sizeEntry};
