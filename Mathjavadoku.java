@@ -29,9 +29,6 @@ public class Mathjavadoku {
 		setSolution();
 		setAllocation();
 		setSubpuzzles();
-//		displaySolution();
-//		displayAllocation();
-//		displaySubpuzzles();
 	}
 	
 	public void setSolution() {

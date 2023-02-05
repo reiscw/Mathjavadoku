@@ -28,5 +28,4 @@ public class MathjavadokuLocation implements Comparable {
 			}
 		}
 	}
-	
 }
