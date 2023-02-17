@@ -16,17 +16,13 @@ public class MathjavadokuPanel extends JPanel {
 	private Color currentColor;
 
 	private static final int BUTTON_SIZE = 80;
-	private static final int FONT_SIZE = 12;
+	private static final int FONT_SIZE = 16;
 
-	private static final Color LIGHT_BLUE = new Color(153, 204, 255);
-	private static final Color LIGHT_GREEN = new Color(153, 255, 153);
-	private static final Color LIGHTER_GRAY = new Color(224, 224, 224);
-	
 	public MathjavadokuPanel(int size) {
 		this.size = size;
 		mathjavadoku = new Mathjavadoku(size);
 		buttons = new JButton[size][size];
-		currentColor = Color.CYAN;
+		currentColor = getRandomColor();
 		// adjust size and set layout
         setPreferredSize(new Dimension ((size+1)*BUTTON_SIZE+200, (size+1)*BUTTON_SIZE));
         setLayout(null);
@@ -64,7 +60,7 @@ public class MathjavadokuPanel extends JPanel {
 				});    
 				buttons[row][col] = subpuzzleButtons[i];
 			}
-			currentColor = nextColor();
+			currentColor = getRandomColor();
 		}
 		for (int i = 0; i < size; i++) {
 			for (int j = 0; j < size; j++) {
@@ -233,36 +229,15 @@ public class MathjavadokuPanel extends JPanel {
 		repaint();        
 	}
 	
-	public Color nextColor() {
-		if (currentColor.equals(Color.CYAN)) {
-			return Color.GREEN;
-		} else if (currentColor.equals(Color.GREEN)) {
-			return Color.LIGHT_GRAY;
-		} else if (currentColor.equals(Color.LIGHT_GRAY)) {
-			return Color.MAGENTA;
-		} else if (currentColor.equals(Color.MAGENTA)) {
-			return Color.ORANGE;
-		} else if (currentColor.equals(Color.ORANGE)) {
-			return Color.PINK;
-		} else if (currentColor.equals(Color.PINK)) {
-			return Color.RED;
-		} else if (currentColor.equals(Color.RED)) {
-			return LIGHTER_GRAY;
-		} else if (currentColor.equals(LIGHTER_GRAY)) {
-			return LIGHT_BLUE;
-		} else if (currentColor.equals(LIGHT_BLUE)) {
-			return LIGHT_GREEN;
-		} else if (currentColor.equals(LIGHT_GREEN)) {
-			return Color.WHITE;
-		} else if (currentColor.equals(Color.WHITE)) {
-			return Color.YELLOW;
-		} else {
-			return Color.CYAN;
-		}
+	public Color getRandomColor() {
+		int r = (int)(Math.random()*156)+100;
+		int g = (int)(Math.random()*156)+100;
+		int b = (int)(Math.random()*156)+100;
+		return new Color(r, g, b);
 	}
 	
 	public static void main(String[] args) {
-		JFrame frame = new JFrame("Mathjavadoku 1.3 by Christopher Reis");
+		JFrame frame = new JFrame("Mathjavadoku 1.4 by Christopher Reis");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         JTextField sizeEntry = new JTextField();
 		Object[] message = {"Enter your desired puzzle size: ", sizeEntry};
