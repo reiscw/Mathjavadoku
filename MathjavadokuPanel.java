@@ -11,25 +11,27 @@ public class MathjavadokuPanel extends JPanel {
 	private JButton autoSimplifyButton;
 	private JButton newGameButton;
     private JButton quitButton;
-    private JTextField status;	
+    private JButton undoButton;
 	private int size;
 	private Color currentColor;
+	private ArrayList<State> states;
+	private boolean lastActionUndo;
 
 	private static final int BUTTON_SIZE = 80;
 	private static final int FONT_SIZE = 16;
 
 	public MathjavadokuPanel(int size) {
 		this.size = size;
+		lastActionUndo = false;
 		mathjavadoku = new Mathjavadoku(size);
 		buttons = new JButton[size][size];
+		states = new ArrayList<State>();
 		currentColor = getRandomColor();
 		// adjust size and set layout
         setPreferredSize(new Dimension ((size+1)*BUTTON_SIZE+200, (size+1)*BUTTON_SIZE));
         setLayout(null);
         // setup buttons
 		buttonSetup();
-		// setup fields
-		fieldSetup();
 	}
 	
 	public void buttonSetup() {
@@ -71,12 +73,16 @@ public class MathjavadokuPanel extends JPanel {
 		autoSimplifyButton = new JButton("Simplify");
 		newGameButton = new JButton("New Game");
 		quitButton = new JButton("Quit");
+		undoButton = new JButton("Undo");
 		autoSimplifyButton.setBounds((size+1)*BUTTON_SIZE, 50, 150, 20);
 		newGameButton.setBounds((size+1)*BUTTON_SIZE, 90, 150, 20);
 		quitButton.setBounds((size+1)*BUTTON_SIZE, 130, 150, 20);
+		undoButton.setBounds((size+1)*BUTTON_SIZE, 170, 150, 20);
 		add(autoSimplifyButton);
 		add(newGameButton);
 		add(quitButton);
+		add(undoButton);
+		addState();
 		
 		autoSimplifyButton.addActionListener(e -> {
 			try {
@@ -101,21 +107,24 @@ public class MathjavadokuPanel extends JPanel {
 				exc.printStackTrace();
 			}
 		});
-	}
-	
-	public void fieldSetup() {
-		status = new JTextField("Puzzle not yet solved.");
-		status.setEditable(false);
-		status.setBounds((size+1)*BUTTON_SIZE, 170, 150, 20);
-		add(status);
+		
+		undoButton.addActionListener(e -> {
+			try {
+				undo();
+			} catch (Exception exc) {
+				exc.printStackTrace();
+			}
+		});
 	}
 	
 	public void click(int row, int col) {
+		lastActionUndo = false;
 		JTextField candidateEntry = new JTextField();
 		Object[] message = {"Enter your solution or candididates: ", candidateEntry};
 		int result = JOptionPane.showConfirmDialog(null,  message, "Update Location", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
 		if (result != JOptionPane.OK_CANCEL_OPTION) {
 			buttons[row][col].setText(candidateEntry.getText());
+			addState();
 		} 
 		if (check()) {
 			String successMessage = "Would you like to play again? (Choose OK for yes, Cancel for no)";
@@ -126,6 +135,16 @@ public class MathjavadokuPanel extends JPanel {
 				System.exit(0);
 			}
 		}
+	}
+	
+	public void addState() {
+		String[][] stateArray = new String[size][size];
+		for (int i = 0; i < size; i++) {
+			for (int j = 0; j < size; j++) {
+				stateArray[i][j] = buttons[i][j].getText();
+			}
+		}
+		states.add(new State(stateArray));
 	}
 	
 	public boolean check() {
@@ -151,11 +170,11 @@ public class MathjavadokuPanel extends JPanel {
 				}
 			}
 		}
-		status.setText("Congratulations!");
 		return true;
 	}
 	
 	public void autoUpdate() {
+		lastActionUndo = false;
 		boolean finished = false;
 		while (!finished) {
 			// check columns
@@ -204,6 +223,7 @@ public class MathjavadokuPanel extends JPanel {
 			}
 			if (!columnChange && !rowChange) {
 				finished = true;
+				addState();
 			}
 		}
 		if (check()) {
@@ -217,13 +237,31 @@ public class MathjavadokuPanel extends JPanel {
 		}
 	}
 	
+	public void undo() {
+		if ((!lastActionUndo && states.size() > 1) || (states.size() > 0)) {
+			if (!lastActionUndo) {
+				states.remove(states.size() - 1);
+			}
+			State removed = states.remove(states.size() - 1);
+			String[][] array = removed.getState();
+			for (int i = 0; i < size; i++) {
+				for (int j = 0; j < size; j++) {
+					buttons[i][j].setText(array[i][j]);
+				}
+			}
+			setVisible(true);
+			revalidate();
+			repaint();        
+		}
+		lastActionUndo = true;
+	}
+	
 	public void reset() {
 		removeAll();
 		mathjavadoku = new Mathjavadoku(size);
 		buttons = new JButton[size][size];
 		currentColor = Color.CYAN;
 		buttonSetup();
-		fieldSetup();
 		setVisible(true);
 		revalidate();
 		repaint();        
@@ -237,7 +275,7 @@ public class MathjavadokuPanel extends JPanel {
 	}
 	
 	public static void main(String[] args) {
-		JFrame frame = new JFrame("Mathjavadoku 1.4 by Christopher Reis");
+		JFrame frame = new JFrame("Mathjavadoku 1.5 by Christopher Reis");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         JTextField sizeEntry = new JTextField();
 		Object[] message = {"Enter your desired puzzle size: ", sizeEntry};
