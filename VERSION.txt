@@ -4,3 +4,4 @@ Version 1.2 - Added colors to limit adjacent subpuzzles with the same color, add
 Version 1.3 - Adjusted font size / tile size for better experience on macOS
 Version 1.4 - Switched from defined colors to random colors, to radically decrease the likelihood of adjacent sub-puzzles with the same color
 Version 1.5 - Added undo functionality
+Version 1.6 - Fixed minor bug in update functionality

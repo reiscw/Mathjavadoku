@@ -257,6 +257,8 @@ public class MathjavadokuPanel extends JPanel {
 	}
 	
 	public void reset() {
+		lastActionUndo = false;
+		states = new ArrayList<State>();
 		removeAll();
 		mathjavadoku = new Mathjavadoku(size);
 		buttons = new JButton[size][size];
@@ -275,7 +277,7 @@ public class MathjavadokuPanel extends JPanel {
 	}
 	
 	public static void main(String[] args) {
-		JFrame frame = new JFrame("Mathjavadoku 1.5 by Christopher Reis");
+		JFrame frame = new JFrame("Mathjavadoku 1.6 by Christopher Reis");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         JTextField sizeEntry = new JTextField();
 		Object[] message = {"Enter your desired puzzle size: ", sizeEntry};
