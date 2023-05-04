@@ -12,6 +12,9 @@ public class MathjavadokuPanel extends JPanel {
 	private JButton newGameButton;
     private JButton quitButton;
     private JButton undoButton;
+    private JLabel filledProgress;
+    private JLabel singledProgress;
+    
 	private int size;
 	private Color currentColor;
 	private ArrayList<State> states;
@@ -74,14 +77,20 @@ public class MathjavadokuPanel extends JPanel {
 		newGameButton = new JButton("New Game");
 		quitButton = new JButton("Quit");
 		undoButton = new JButton("Undo");
+		filledProgress = new JLabel("Filled: 0/" + (size*size));
+		singledProgress = new JLabel("Singled: 0/" + (size*size));
 		autoSimplifyButton.setBounds((size+1)*BUTTON_SIZE, 50, 150, 20);
 		newGameButton.setBounds((size+1)*BUTTON_SIZE, 90, 150, 20);
 		quitButton.setBounds((size+1)*BUTTON_SIZE, 130, 150, 20);
 		undoButton.setBounds((size+1)*BUTTON_SIZE, 170, 150, 20);
+		filledProgress.setBounds((size+1)*BUTTON_SIZE, 210, 150, 20);
+		singledProgress.setBounds((size+1)*BUTTON_SIZE, 250, 150, 20);
 		add(autoSimplifyButton);
 		add(newGameButton);
 		add(quitButton);
 		add(undoButton);
+		add(filledProgress);
+		add(singledProgress);
 		addState();
 		
 		autoSimplifyButton.addActionListener(e -> {
@@ -125,7 +134,8 @@ public class MathjavadokuPanel extends JPanel {
 		if (result != JOptionPane.OK_CANCEL_OPTION) {
 			buttons[row][col].setText(candidateEntry.getText());
 			addState();
-		} 
+		}
+		updateProgress(); 
 		if (check()) {
 			String successMessage = "Would you like to play again? (Choose OK for yes, Cancel for no)";
 			result = JOptionPane.showConfirmDialog(null,  successMessage, "Congratulations!", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
@@ -226,6 +236,7 @@ public class MathjavadokuPanel extends JPanel {
 				addState();
 			}
 		}
+		updateProgress();
 		if (check()) {
 			String successMessage = "Would you like to play again? (Choose OK for yes, Cancel for no)";
 			int result = JOptionPane.showConfirmDialog(null,  successMessage, "Congratulations!", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
@@ -253,6 +264,7 @@ public class MathjavadokuPanel extends JPanel {
 			revalidate();
 			repaint();        
 		}
+		updateProgress();
 		lastActionUndo = true;
 	}
 	
@@ -263,6 +275,8 @@ public class MathjavadokuPanel extends JPanel {
 		mathjavadoku = new Mathjavadoku(size);
 		buttons = new JButton[size][size];
 		currentColor = Color.CYAN;
+		filledProgress.setText("Filled: 0/" + (size*size));
+		singledProgress.setText("Singled: 0/" + (size*size));
 		buttonSetup();
 		setVisible(true);
 		revalidate();
@@ -276,8 +290,25 @@ public class MathjavadokuPanel extends JPanel {
 		return new Color(r, g, b);
 	}
 	
+	public void updateProgress() {
+		int single = 0;
+		int filled = 0;
+		for (int i = 0; i < size; i++) {
+			for (int j = 0; j < size; j++) {
+				if (buttons[i][j].getText().length() == 1) {
+					single++;
+					filled++;
+				} else if (buttons[i][j].getText().length() > 1) {
+					filled++;
+				}
+			}
+		}
+		filledProgress.setText("Filled: " + filled + "/" + (size*size));
+		singledProgress.setText("Singled: " + single + "/" + (size*size));
+	}
+	
 	public static void main(String[] args) {
-		JFrame frame = new JFrame("Mathjavadoku 1.6 by Christopher Reis");
+		JFrame frame = new JFrame("Mathjavadoku 1.7 by Christopher Reis");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         JTextField sizeEntry = new JTextField();
 		Object[] message = {"Enter your desired puzzle size: ", sizeEntry};
