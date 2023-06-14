@@ -6,3 +6,4 @@ Version 1.4 - Switched from defined colors to random colors, to radically decrea
 Version 1.5 - Added undo functionality
 Version 1.6 - Fixed minor bug in update functionality
 Version 1.7 - Added progress indicators
+Version 2.0 - Added autofill functionality

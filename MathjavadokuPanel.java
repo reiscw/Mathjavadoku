@@ -127,19 +127,52 @@ public class MathjavadokuPanel extends JPanel {
 	}
 	
 	public void click(int row, int col) {
+		// check if the current square is empty for autofill
+		boolean empty = buttons[row][col].getText().length() == 0;
+		// check if the current square is a single
+		// locate the proper subpuzzle
+		ArrayList<SubPuzzle> subPuzzles = mathjavadoku.getSubPuzzles();
+		int i = 0;
+		for (i = 0; i < subPuzzles.size(); i++ ) {
+			if (subPuzzles.get(i).containsLocation(row, col)) {
+				break;
+			}
+		}		
+		// check if the subpuzzle is a single
+		boolean single = subPuzzles.get(i).getLocations().size() == 1;
 		lastActionUndo = false;
 		JTextField candidateEntry = new JTextField();
 		Object[] message = {"Enter your solution or candididates: ", candidateEntry};
 		int result = JOptionPane.showConfirmDialog(null,  message, "Update Location", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
-		if (result != JOptionPane.OK_CANCEL_OPTION) {
+		if (result == JOptionPane.OK_OPTION) {
 			buttons[row][col].setText(candidateEntry.getText());
 			addState();
+			if (empty && !single) {
+				String speedUpMessage = "Do you want to apply this candidate list to the rest of the subupuzzle?";
+				result = JOptionPane.showConfirmDialog(null,  speedUpMessage, "Fill the rest of the subpuzzle?", JOptionPane.YES_NO_OPTION, JOptionPane.PLAIN_MESSAGE);
+				if (result == JOptionPane.YES_OPTION) {
+					// locate the proper subpuzzle
+					for (i = 0; i < subPuzzles.size(); i++ ) {
+						if (subPuzzles.get(i).containsLocation(row, col)) {
+							break;
+						}
+					}
+					// update the locations of the proper subpuzzle
+					for (MathjavadokuLocation loc : subPuzzles.get(i).getLocations()) {
+						int r = loc.getRow();
+						int c = loc.getCol();
+						if (buttons[r][c].getText().length() == 0) {
+							buttons[r][c].setText(candidateEntry.getText());
+						}
+					}
+				}
+			}
 		}
 		updateProgress(); 
 		if (check()) {
-			String successMessage = "Would you like to play again? (Choose OK for yes, Cancel for no)";
-			result = JOptionPane.showConfirmDialog(null,  successMessage, "Congratulations!", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
-			if (result == JOptionPane.OK_OPTION) {
+			String successMessage = "Would you like to play again?";
+			result = JOptionPane.showConfirmDialog(null,  successMessage, "Congratulations!", JOptionPane.YES_NO_OPTION, JOptionPane.PLAIN_MESSAGE);
+			if (result == JOptionPane.YES_OPTION) {
 				reset();
 			} else {
 				System.exit(0);
@@ -238,9 +271,9 @@ public class MathjavadokuPanel extends JPanel {
 		}
 		updateProgress();
 		if (check()) {
-			String successMessage = "Would you like to play again? (Choose OK for yes, Cancel for no)";
-			int result = JOptionPane.showConfirmDialog(null,  successMessage, "Congratulations!", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
-			if (result == JOptionPane.OK_OPTION) {
+			String successMessage = "Would you like to play again?";
+			int result = JOptionPane.showConfirmDialog(null,  successMessage, "Congratulations!", JOptionPane.YES_NO_OPTION, JOptionPane.PLAIN_MESSAGE);
+			if (result == JOptionPane.YES_OPTION) {
 				reset();
 			} else {
 				System.exit(0);
@@ -308,13 +341,13 @@ public class MathjavadokuPanel extends JPanel {
 	}
 	
 	public static void main(String[] args) {
-		JFrame frame = new JFrame("Mathjavadoku 1.7 by Christopher Reis");
+		JFrame frame = new JFrame("Mathjavadoku 2.0 by Christopher Reis");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         JTextField sizeEntry = new JTextField();
 		Object[] message = {"Enter your desired puzzle size: ", sizeEntry};
 		int result = JOptionPane.showConfirmDialog(null,  message, "Choose your Mathjavadoku size", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
 		int size = 0;
-		if (result != JOptionPane.OK_CANCEL_OPTION) {
+		if (result == JOptionPane.OK_OPTION) {
 			try {
 				size = Integer.parseInt(sizeEntry.getText());
 			} catch (Exception e) {

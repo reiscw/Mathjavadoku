@@ -84,4 +84,13 @@ public class SubPuzzle {
 	public String instruction() {
 		return "" + operation + "" + value;
 	}
+	
+	public boolean containsLocation(int r, int c) {
+		for (MathjavadokuLocation loc : locations) {
+			if (loc.getRow() == r && loc.getCol() == c) {
+				return true;
+			}
+		}
+		return false;
+	}
 }

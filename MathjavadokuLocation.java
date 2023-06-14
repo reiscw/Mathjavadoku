@@ -10,6 +10,9 @@ public class MathjavadokuLocation implements Comparable {
 		this.value = value;
 	}
 	
+	public int getRow() {return row;}
+	public int getCol() {return col;}
+	
 	public String toString() {
 		return "[" + row + ", " + col + "]:" + value;
 	}
@@ -23,9 +26,15 @@ public class MathjavadokuLocation implements Comparable {
 		} else {
 			if (col < other.col) {
 				return -1;
-			} else {
+			} else if (col > other.col) {
 				return 1;
+			} else {
+				return 0;
 			}
 		}
+	}
+	
+	public boolean equals(Object o) {
+		return this.compareTo(o) == 0;
 	}
 }
