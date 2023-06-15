@@ -133,8 +133,16 @@ public class MathjavadokuPanel extends JPanel {
 		// locate the proper subpuzzle
 		ArrayList<SubPuzzle> subPuzzles = mathjavadoku.getSubPuzzles();
 		int i = 0;
+		int numEmpty = 0;
 		for (i = 0; i < subPuzzles.size(); i++ ) {
 			if (subPuzzles.get(i).containsLocation(row, col)) {
+				for (MathjavadokuLocation loc : subPuzzles.get(i).getLocations()) {
+					int r = loc.getRow();
+					int c = loc.getCol();
+					if (buttons[r][c].getText().length() == 0) {
+						numEmpty++;
+					}
+				}
 				break;
 			}
 		}		
@@ -147,7 +155,7 @@ public class MathjavadokuPanel extends JPanel {
 		if (result == JOptionPane.OK_OPTION) {
 			buttons[row][col].setText(candidateEntry.getText());
 			addState();
-			if (empty && !single) {
+			if (empty && !single && numEmpty > 1) {
 				String speedUpMessage = "Do you want to apply this candidate list to the rest of the subupuzzle?";
 				result = JOptionPane.showConfirmDialog(null,  speedUpMessage, "Fill the rest of the subpuzzle?", JOptionPane.YES_NO_OPTION, JOptionPane.PLAIN_MESSAGE);
 				if (result == JOptionPane.YES_OPTION) {
@@ -341,7 +349,7 @@ public class MathjavadokuPanel extends JPanel {
 	}
 	
 	public static void main(String[] args) {
-		JFrame frame = new JFrame("Mathjavadoku 2.0 by Christopher Reis");
+		JFrame frame = new JFrame("Mathjavadoku 2.1 by Christopher Reis");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         JTextField sizeEntry = new JTextField();
 		Object[] message = {"Enter your desired puzzle size: ", sizeEntry};
