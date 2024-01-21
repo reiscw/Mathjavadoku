@@ -8,3 +8,4 @@ Version 1.6 - Fixed minor bug in update functionality
 Version 1.7 - Added progress indicators
 Version 2.0 - Added autofill functionality
 Version 2.1 - Improved autofill functionality
+Version 2.2 - Added confirmation to New Game / Quit Game buttons; also decreased likelihood of adjacent sub-puzzles having similar colors

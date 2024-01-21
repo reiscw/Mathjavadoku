@@ -17,6 +17,7 @@ public class MathjavadokuPanel extends JPanel {
     
 	private int size;
 	private Color currentColor;
+	private ArrayList<Color> colors;
 	private ArrayList<State> states;
 	private boolean lastActionUndo;
 
@@ -29,6 +30,7 @@ public class MathjavadokuPanel extends JPanel {
 		mathjavadoku = new Mathjavadoku(size);
 		buttons = new JButton[size][size];
 		states = new ArrayList<State>();
+		colors = new ArrayList<Color>();
 		currentColor = getRandomColor();
 		// adjust size and set layout
         setPreferredSize(new Dimension ((size+1)*BUTTON_SIZE+200, (size+1)*BUTTON_SIZE));
@@ -103,7 +105,9 @@ public class MathjavadokuPanel extends JPanel {
 		
 		newGameButton.addActionListener(e -> {
 			try {
-				reset();
+				if (doubleCheck()) {
+					reset();
+				}
 			} catch (Exception exc) {
 				exc.printStackTrace();
 			}			
@@ -111,7 +115,9 @@ public class MathjavadokuPanel extends JPanel {
 		
 		quitButton.addActionListener(e -> {
 			try {
-				System.exit(0);
+				if (doubleCheck()) {
+					System.exit(0);
+				}
 			} catch (Exception exc) {
 				exc.printStackTrace();
 			}
@@ -124,6 +130,19 @@ public class MathjavadokuPanel extends JPanel {
 				exc.printStackTrace();
 			}
 		});
+	}
+	
+	public boolean doubleCheck() {
+		if (!check()) {
+			String message = "Are you sure? Your game is not over!";
+			int result = JOptionPane.showConfirmDialog(null,  message, "Careful!", JOptionPane.YES_NO_OPTION, JOptionPane.PLAIN_MESSAGE);
+			if (result == JOptionPane.YES_OPTION) {
+				return true;
+			} else {
+				return false;
+			}
+		}
+		return true;
 	}
 	
 	public void click(int row, int col) {
@@ -312,6 +331,7 @@ public class MathjavadokuPanel extends JPanel {
 	public void reset() {
 		lastActionUndo = false;
 		states = new ArrayList<State>();
+		colors = new ArrayList<Color>();
 		removeAll();
 		mathjavadoku = new Mathjavadoku(size);
 		buttons = new JButton[size][size];
@@ -325,10 +345,29 @@ public class MathjavadokuPanel extends JPanel {
 	}
 	
 	public Color getRandomColor() {
-		int r = (int)(Math.random()*156)+100;
-		int g = (int)(Math.random()*156)+100;
-		int b = (int)(Math.random()*156)+100;
-		return new Color(r, g, b);
+		while (true) {
+			// generate random color
+			int r = (int)(Math.random()*156)+100;
+			int g = (int)(Math.random()*156)+100;
+			int b = (int)(Math.random()*156)+100;
+			// check if random color is too close to another color
+			boolean success = true;
+			for (Color c : colors) {
+				int rr = c.getRed();
+				int gg = c.getGreen();
+				int bb = c.getBlue();
+				int d = (int)(Math.sqrt((r-rr)*(r-rr)+(g-gg)*(g-gg)+(b-bb)*(b-bb)));
+				if (d < 50) {
+					success = false;
+					break;
+				}
+			}
+			if (success) {
+				Color result = new Color(r, g, b);
+				colors.add(result);
+				return result;
+			}
+		}
 	}
 	
 	public void updateProgress() {
@@ -349,7 +388,7 @@ public class MathjavadokuPanel extends JPanel {
 	}
 	
 	public static void main(String[] args) {
-		JFrame frame = new JFrame("Mathjavadoku 2.1 by Christopher Reis");
+		JFrame frame = new JFrame("Mathjavadoku 2.2 by Christopher Reis");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         JTextField sizeEntry = new JTextField();
 		Object[] message = {"Enter your desired puzzle size: ", sizeEntry};
